@@ -1,0 +1,49 @@
+{
+  "name": "ai-omni-skills",
+  "version": "1.2.25",
+  "type": "module",
+  "description": "Unify scattered AI skills across all your tools. One canonical store. 26 AI tools. Zero drift.",
+  "bin": {
+    "omni-skills": "cli.js",
+    "skills": "cli.js"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.0.0",
+    "gray-matter": "^4.0.0"
+  },
+  "scripts": {
+    "test": "node --test tests/*.test.js",
+    "verify": "node verify.js",
+    "postinstall": "node postinstall.js"
+  },
+  "keywords": [
+    "mcp",
+    "ai",
+    "skills",
+    "agents",
+    "claude",
+    "codex",
+    "kimi",
+    "gemini",
+    "cursor",
+    "kilocode",
+    "opencode",
+    "zai",
+    "glm",
+    "unify",
+    "sync"
+  ],
+  "author": "Moataz Mohamed <motazhamada@gmail.com>",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/moatazhamada/ai-omni-skills.git"
+  },
+  "bugs": {
+    "url": "https://github.com/moatazhamada/ai-omni-skills/issues"
+  },
+  "homepage": "https://github.com/moatazhamada/ai-omni-skills#readme"
+}
