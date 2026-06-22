@@ -107,6 +107,11 @@ Subcommands:
   update [--check]
           Check for updates. Shows current version and latest from npm.
           --check only: no install prompt, just status.
+  version
+          Show current version.
+  uninstall
+          Remove omni-skills, symlinks, and MCP configs. Skills directory is
+          protected by default (prompts before deletion).
   uninstall
           Remove omni-skills toolkit integrations.
           Your skills directory is protected by default (must opt-in to delete).
@@ -299,6 +304,13 @@ async function main() {
     case 'uninstall': {
       const { uninstall } = await import('./lib/uninstall.js');
       await uninstall(loadConfig());
+      break;
+    }
+    case 'version':
+    case '-v':
+    case '--version': {
+      const { getCurrentVersion } = await import('./lib/version-check.js');
+      console.log('v' + getCurrentVersion());
       break;
     }
     case 'help':

@@ -5,6 +5,8 @@
 [![license](https://img.shields.io/npm/l/ai-omni-skills.svg)](LICENSE)
 [![GitHub stars](https://img.shields.io/github/stars/moatazhamada/ai-omni-skills.svg?style=social)](https://github.com/moatazhamada/ai-omni-skills)
 
+![Omni Skills Banner](banner.png)
+
 > **I try every AI tool. My skills scattered everywhere. This unifies them.**
 
 A CLI + MCP server that takes the skills you've collected across all your AI coding tools and unifies them into a single canonical store. Then it syncs them into every tool you use — Claude, Codex, Kimi, Gemini, Cursor, Zed, Cline, Z.AI, and anything else that follows.
