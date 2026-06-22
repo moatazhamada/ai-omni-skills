@@ -1,0 +1,7 @@
+[
+  {
+    "event": "SessionStart",
+    "matcher": "startup",
+    "command": "echo 'Welcome. Call list_skills / read_skill before acting on matching tasks.'"
+  }
+]

@@ -1,0 +1,11 @@
+*.zip
+.DS_Store
+node_modules/
+.tooling/usage.jsonl
+.tooling/*.log
+*.log
+firebase-debug.log
+*.bak
+.pre-skills.bak
+coverage/
+.vitest/
