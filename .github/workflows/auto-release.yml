@@ -1,0 +1,101 @@
+name: auto-release
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      id-token: write
+      packages: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Get version from package.json
+        id: get_version
+        run: |
+          VERSION=$(node -p "require('./package.json').version")
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "tag=v$VERSION" >> $GITHUB_OUTPUT
+
+      - name: Check if release already exists
+        id: check_release
+        run: |
+          TAG="${{ steps.get_version.outputs.tag }}"
+          STATUS=$(curl -s -o /dev/null -w "%{http_code}" \
+            -H "Authorization: token ${{ secrets.RELEASE_TOKEN || secrets.GITHUB_TOKEN }}" \
+            "https://api.github.com/repos/${{ github.repository }}/releases/tags/$TAG")
+          echo "status=$STATUS" >> $GITHUB_OUTPUT
+
+      - name: Extract release notes from CHANGELOG
+        if: steps.check_release.outputs.status == '404'
+        id: changelog
+        run: |
+          VERSION="${{ steps.get_version.outputs.version }}"
+          awk -v ver="## [$VERSION]" '
+            index($0, ver) == 1 { found=1; next }
+            found && index($0, "## [") == 1 { exit }
+            found { print }
+          ' CHANGELOG.md > /tmp/release_notes.md
+          if [ ! -s /tmp/release_notes.md ]; then
+            echo "See CHANGELOG.md for version $VERSION details." > /tmp/release_notes.md
+          fi
+          echo "notes<<EOF" >> $GITHUB_OUTPUT
+          cat /tmp/release_notes.md >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+          echo "Extracted release notes:"
+          cat /tmp/release_notes.md
+
+      - name: Create GitHub Release
+        if: steps.check_release.outputs.status == '404'
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ steps.get_version.outputs.tag }}
+          name: Omni Skills ${{ steps.get_version.outputs.tag }}
+          body: |
+            ${{ steps.changelog.outputs.notes }}
+
+            ---
+
+            Published with [npm provenance](https://www.npmjs.com/package/ai-omni-skills).
+          draft: false
+          prerelease: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.RELEASE_TOKEN || secrets.GITHUB_TOKEN }}
+
+      - uses: actions/setup-node@v4
+        if: steps.check_release.outputs.status == '404'
+        with:
+          node-version: 22
+          registry-url: https://registry.npmjs.org/
+
+      - name: Update npm to latest
+        if: steps.check_release.outputs.status == '404'
+        run: npm install -g npm@latest
+
+      - run: npm ci
+        if: steps.check_release.outputs.status == '404'
+
+      - run: npm test
+        if: steps.check_release.outputs.status == '404'
+
+      - name: Publish to npm
+        if: steps.check_release.outputs.status == '404'
+        run: npm publish --provenance --access public
+
+      - uses: actions/setup-node@v4
+        if: steps.check_release.outputs.status == '404'
+        with:
+          node-version: 22
+          registry-url: https://npm.pkg.github.com/
+
+      - name: Publish to GitHub Packages
+        if: steps.check_release.outputs.status == '404'
+        run: npm publish --access public
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
