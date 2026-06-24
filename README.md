@@ -80,11 +80,32 @@ Skills are discovered from your private skill repos, live-reloaded when files ch
 
 ### Install
 
+Choose one of the following. Native binaries do not require Node.js.
+
+#### npm
+
 ```bash
 npm install -g ai-omni-skills
 ```
 
 Every release is [published with npm provenance](https://www.npmjs.com/package/ai-omni-skills) — verifiably linked to a GitHub commit and GitHub Actions workflow.
+
+#### macOS / Linux (Homebrew)
+
+```bash
+brew tap moatazhamada/tap
+brew install omni-skills
+```
+
+#### Windows (Winget)
+
+```bash
+winget install omni-skills
+```
+
+#### GitHub Releases
+
+Download the binary for your platform from the [releases page](https://github.com/moatazhamada/ai-omni-skills/releases) and place it in your `PATH`.
 
 ### Prerequisites
 
