@@ -82,3 +82,16 @@ Every AI tool that supports MCP registers this server and can call:
 
 Skills are discovered from your private skill repos, live-reloaded when files
 change, and exposed as both **tools** and **prompts**.
+
+---
+
+## Documentation index
+
+- [README](../README.md) — overview, install, quick start
+- [Installation options & why `brew tap`](install.md)
+- [Architecture: compiler, execution boundaries, MCP server](architecture.md)
+- [Workflows: chainable skill sequences](workflows.md)
+- [Security scanning with NVIDIA SkillSpector](security.md)
+- [Creating new skills](creating-skills.md)
+- [How to store your skills](storing-skills.md)
+- [Usage guide, health checks, verification](usage.md)

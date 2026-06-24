@@ -51,3 +51,16 @@ Every release is [published with npm provenance](https://www.npmjs.com/package/a
 Download the binary for your platform from the
 [releases page](https://github.com/moatazhamada/ai-omni-skills/releases) and
 place it in your `PATH`.
+
+---
+
+## Documentation index
+
+- [README](../README.md) — overview, install, quick start
+- [Installation options & why `brew tap`](install.md)
+- [Architecture: compiler, execution boundaries, MCP server](architecture.md)
+- [Workflows: chainable skill sequences](workflows.md)
+- [Security scanning with NVIDIA SkillSpector](security.md)
+- [Creating new skills](creating-skills.md)
+- [How to store your skills](storing-skills.md)
+- [Usage guide, health checks, verification](usage.md)

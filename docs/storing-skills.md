@@ -50,3 +50,16 @@ Your skills are **personal** — they contain:
 No one needs to see your `refine-requests` skill or your `review-feedback`
 workflow. The toolkit is public because it is generic infrastructure. The
 skills are private because they are your intellectual property.
+
+---
+
+## Documentation index
+
+- [README](../README.md) — overview, install, quick start
+- [Installation options & why `brew tap`](install.md)
+- [Architecture: compiler, execution boundaries, MCP server](architecture.md)
+- [Workflows: chainable skill sequences](workflows.md)
+- [Security scanning with NVIDIA SkillSpector](security.md)
+- [Creating new skills](creating-skills.md)
+- [How to store your skills](storing-skills.md)
+- [Usage guide, health checks, verification](usage.md)
