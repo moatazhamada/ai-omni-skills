@@ -54,7 +54,7 @@ jobs:
         run: npm ci
 
       - name: Compile Native Binary
-        run: bun build ./cli.js --compile --minify --target=${{ matrix.target }} --outfile=${{ matrix.binaryName }}
+        run: bun build ./cli.js --compile --target=${{ matrix.target }} --outfile=${{ matrix.binaryName }}
 
       - name: Upload to GitHub Release
         uses: softprops/action-gh-release@v2

@@ -1,11 +1,11 @@
 PackageIdentifier: moatazhamada.omni-skills
-PackageVersion: 1.3.2
+PackageVersion: 1.4.0
 InstallerType: portable
 Commands:
   - omni-skills
 Installers:
   - Architecture: x64
-    InstallerUrl: https://github.com/moatazhamada/ai-omni-skills/releases/download/v1.3.2/omni-skills-windows-x64.exe
+    InstallerUrl: https://github.com/moatazhamada/ai-omni-skills/releases/download/v1.4.0/omni-skills-windows-x64.exe
     InstallerSha256: REPLACE_WITH_SHA256_FOR_omni-skills-windows-x64.exe
     InstallerType: portable
 ManifestType: installer
