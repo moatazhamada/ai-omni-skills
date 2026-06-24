@@ -1,0 +1,64 @@
+name: Release Native Binaries
+
+on:
+  push:
+    tags:
+      - 'v*' # Triggers automatically when you push a tag like v1.4.0
+
+permissions:
+  contents: write # Required for creating a GitHub Release and uploading assets
+
+jobs:
+  build-release-binaries:
+    name: Compile ${{ matrix.target }}
+    runs-on: ${{ matrix.runner }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - runner: ubuntu-latest
+            target: bun-linux-x64
+            binaryName: omni-skills-linux-x64
+          - runner: macos-latest
+            target: bun-darwin-arm64
+            binaryName: omni-skills-mac-arm64
+          - runner: macos-latest
+            target: bun-darwin-x64
+            binaryName: omni-skills-mac-x64
+          - runner: windows-latest
+            target: bun-windows-x64
+            binaryName: omni-skills-windows-x64.exe
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
+
+      - name: Sync static version to release tag
+        shell: bash
+        run: |
+          RELEASE_VERSION="${GITHUB_REF_NAME#v}"
+          if [[ -z "$RELEASE_VERSION" ]]; then
+            echo "Could not extract version from tag: $GITHUB_REF_NAME"
+            exit 1
+          fi
+          # Keep lib/version.js in sync with the pushed tag so compiled binaries report the correct version.
+          sed -i.bak "s/export const CURRENT_VERSION = '[^']*';/export const CURRENT_VERSION = '$RELEASE_VERSION';/" lib/version.js
+          rm lib/version.js.bak
+          echo "Set CURRENT_VERSION to $RELEASE_VERSION"
+          grep "CURRENT_VERSION" lib/version.js
+
+      - name: Install Dependencies
+        run: npm ci
+
+      - name: Compile Native Binary
+        run: bun build ./cli.js --compile --minify --target=${{ matrix.target }} --outfile=${{ matrix.binaryName }}
+
+      - name: Upload to GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: ${{ matrix.binaryName }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
