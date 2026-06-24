@@ -1,5 +1,29 @@
 # Changelog
 
+## [1.4.0] - 2026-06-24
+
+### Added
+- **Native binary distribution** — standalone executables for macOS (arm64/x64), Linux (x64), and Windows (x64) built automatically on every release via Bun compile and GitHub Actions.
+- **Homebrew tap** — install on macOS and Linux without Node.js:
+  ```bash
+  brew tap moatazhamada/tap
+  brew install omni-skills
+  ```
+- **Winget manifest** — Windows users can install via `winget install omni-skills` once the manifest is accepted into `microsoft/winget-pkgs`.
+- **Skill compiler pipeline** — `SKILL.md` files are now compiled on the fly into the native format expected by each AI tool (Claude/Cursor/Kimi/OpenCode/KiloCode markdown+YAML, Codex markdown+TOML, Gemini markdown+JSON).
+- **Execution boundaries** — YAML frontmatter can now restrict file writing, network access, shell execution, and require user confirmation per tool.
+- **Zero-config fallback** — legacy skills without YAML frontmatter are still detected and synced using directory-inferred metadata.
+- **Optional SkillSpector gate** — opt-in automated vulnerability scanning during the sync process.
+- **Documentation split** — README is now concise; detailed guides live in `docs/`.
+
+### Changed
+- CLI is now decoupled from Node runtime assumptions (`__dirname` package.json reads, example config reads) so compiled binaries work without a Node installation.
+- npm package now uses a `files` whitelist to stay lightweight.
+
+### Fixed
+- `sync all --dry-run` no longer crashes when a tool has `instructionFile: null`.
+- npm publish is now independent of GitHub Release creation so future tag releases publish to npm reliably.
+
 ## [1.2.22] - 2026-06-22
 
 ### Added
