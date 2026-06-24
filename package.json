@@ -10,6 +10,14 @@
   "engines": {
     "node": ">=18"
   },
+  "files": [
+    "cli.js",
+    "mcp.js",
+    "postinstall.js",
+    "verify.js",
+    "lib/**/*.js",
+    "config.example.json"
+  ],
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.0.0",
     "gray-matter": "^4.0.0",
