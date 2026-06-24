@@ -6,7 +6,8 @@ const SUPPORTED_MAJOR = 1;
 
 // Major version hard block: old major versions must update
 async function enforceMajorVersion() {
-  const { checkForUpdates, getCurrentVersion } = await import('./lib/version-check.js');
+  const { checkForUpdates } = await import('./lib/version-check.js');
+  const { getCurrentVersion, getUpdateInstruction } = await import('./lib/version.js');
   const current = getCurrentVersion();
   const cv = current.split('.').map(Number);
   if (cv[0] < SUPPORTED_MAJOR) {
@@ -19,7 +20,7 @@ async function enforceMajorVersion() {
     console.error('');
     console.error('  This version is no longer supported.');
     console.error('  Update now:');
-    console.error('    npm install -g ai-omni-skills@latest');
+    console.error(`    ${getUpdateInstruction()}`);
     console.error('');
     console.error('  Changelog: https://github.com/moatazhamada/ai-omni-skills/blob/main/CHANGELOG.md');
     console.error('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
@@ -279,9 +280,15 @@ async function main() {
     }
     case 'update': {
       const { showUpdateStatus } = await import('./lib/version-check.js');
+      const { isCompiledBinary, getUpdateInstruction } = await import('./lib/version.js');
       const checkOnly = rest.includes('--check');
       const result = await showUpdateStatus({ silent: false });
       if (result && result.status !== 'up-to-date' && !checkOnly) {
+        if (isCompiledBinary()) {
+          console.log('Compiled binary updates are not performed in-place.');
+          console.log(`To upgrade: ${getUpdateInstruction()}`);
+          break;
+        }
         const readline = await import('node:readline');
         const rl = readline.createInterface({ input: process.stdin, output: process.stdout });
         const answer = await new Promise((resolve) => {
@@ -290,11 +297,12 @@ async function main() {
         rl.close();
         if (answer.trim().toLowerCase() !== 'n' && answer.trim().toLowerCase() !== 'no') {
           const { execSync } = await import('node:child_process');
-          console.log('Running: npm install -g ai-omni-skills@latest');
+          const updateCommand = getUpdateInstruction();
+          console.log(`Running: ${updateCommand}`);
           try {
-            execSync('npm install -g ai-omni-skills@latest', { stdio: 'inherit' });
+            execSync(updateCommand, { stdio: 'inherit' });
           } catch (err) {
-            console.error('Update failed. Try manually: npm install -g ai-omni-skills@latest');
+            console.error(`Update failed. Try manually: ${updateCommand}`);
             process.exit(1);
           }
         }
@@ -309,7 +317,7 @@ async function main() {
     case 'version':
     case '-v':
     case '--version': {
-      const { getCurrentVersion } = await import('./lib/version-check.js');
+      const { getCurrentVersion } = await import('./lib/version.js');
       console.log('v' + getCurrentVersion());
       break;
     }
