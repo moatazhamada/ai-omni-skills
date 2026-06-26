@@ -71,66 +71,28 @@ function parseArgs(argv) {
 function showHelp() {
   console.log(`Usage: omni-skills <subcommand> [args] [options]
 
-Subcommands:
-  mcp     Run the MCP server over stdio
-  index   Regenerate INDEX.md and SHARED.md files
-  workflow [list|run <name>]
-          List available workflows or run a named workflow.
-          Workflows are chainable skill sequences (e.g., lint → test → commit).
+Core commands:
   sync [tool|all] [--dry-run]
           Wire instructions, skills dirs, MCP config, hooks, and assets for the
           named tool (or every tool if omitted or 'all'). --dry-run prints planned
           actions.
-  check [--move] [--dry-run]
-          List agent-created local skills and dangling/foreign symlinks.
-          --move relocates detected skills to publicPath unless they look private.
-          --dry-run prints planned moves.
-  report [--enhance]
-          Print usage statistics. --enhance adds heuristic improvement tips.
-  classify [path] [--dry-run] [--depth=N]
-          Scan a directory for instruction files (AGENTS.md, CLAUDE.md, GEMINI.md,
-          etc.), detect sensitive content, and interactively move them to the
-          canonical public or private store. Defaults to current directory.
-          --depth sets max recursion depth (default: 3).
-  discover         Scan your entire system for installed AI tools, instruction files,
-          skill directories, and projects with AI configuration. Reports what
-          it finds and suggests next steps.
   doctor           Run health checks: verify symlinks, config, indexes, and skills.
-  restore [index] [--prune[=N]] [--empty-trash]
-          List trashed files or restore a trashed item to its original path.
-          Run without an index to see the list; pass an index to restore.
-          --prune removes items older than N days (default 30).
-          --empty-trash permanently deletes every trashed item.
   setup [--public=PATH] [--private=PATH] [--toolkit=PATH]
           Auto-scan your system, detect installed AI tools, find instruction files
           and skills, suggest cleanup, and generate ~/.config/skills/config.json.
-          No questions asked. Override defaults with flags.
-  init [--dry-run]
-          Interactive seeker: scan tool skills dirs and known agent locations for
-          new skills, classify them public/private/skip, then sync and index.
-          --dry-run prints recommendations without prompting or writing.
-  security [scan|install|schedule]
-          Check security status of NVIDIA SkillSpector.
-          scan: Scan skills for vulnerabilities.
-          install [pip|docker]: Install SkillSpector.
-          schedule: Show how to set up periodic scanning.
-  create [name] [description]
-          Create a new skill with interactive wizard.
-          Creates SKILL.md template in your skills store.
-  create from <path> [name]
-          Convert an existing file into a skill.
-  update [--check]
-          Check for updates. Shows current version and latest from npm.
-          --check only: no install prompt, just status.
-  version
-          Show current version.
-  uninstall
-          Remove omni-skills, symlinks, and MCP configs. Skills directory is
-          protected by default (prompts before deletion).
-  uninstall
-          Remove omni-skills toolkit integrations.
-          Your skills directory is protected by default (must opt-in to delete).
-  help    Show this help message
+          Override defaults with flags.
+  restore [index] [--prune[=N]] [--empty-trash]
+          List trashed files or restore a trashed item to its original path.
+  manage <subcommand> [args]
+          Secondary utilities: check, classify, init, index, workflow, create,
+          discover, report, security, uninstall.
+  update [--check]  Check for updates.
+  version           Show current version.
+  help              Show this help message
+
+Legacy top-level commands (still work; prefer 'manage'):
+  check, classify, init, index, workflow, create, discover, report, security,
+  uninstall, mcp
 
 Config resolves from $SKILLS_CONFIG, then ~/.config/skills/config.json, then the
 bundled config.example.json.
@@ -158,9 +120,12 @@ To check for updates: omni-skills update`);
 }
 
 async function main() {
-  const cmd = process.argv[2];
+  let cmd = process.argv[2];
   const rest = process.argv.slice(3);
   const { flags, positional } = parseArgs(rest);
+  if (cmd === 'manage') {
+    cmd = positional.shift();
+  }
 
   // Auto-check for major updates on startup (except for update/help commands)
   if (cmd !== 'update' && cmd !== 'help' && cmd !== undefined) {
