@@ -35,6 +35,7 @@ function parseArgs(argv) {
     move: argv.includes('--move'),
     enhance: argv.includes('--enhance'),
     yes: argv.includes('--yes') || argv.includes('-y'),
+    noBackup: argv.includes('--no-backup'),
   };
 
   // Extract --depth=N
@@ -72,10 +73,11 @@ function showHelp() {
   console.log(`Usage: omni-skills <subcommand> [args] [options]
 
 Core commands:
-  sync [tool|all] [--dry-run]
+  sync [tool|all] [--dry-run] [--no-backup]
           Wire instructions, skills dirs, MCP config, hooks, and assets for the
           named tool (or every tool if omitted or 'all'). --dry-run prints planned
-          actions.
+          actions. A backup of affected files is created before writing unless
+          --no-backup is passed.
   doctor           Run health checks: verify symlinks, config, indexes, and skills.
   setup [--public=PATH] [--private=PATH] [--toolkit=PATH]
           Auto-scan your system, detect installed AI tools, find instruction files
@@ -98,14 +100,15 @@ Config resolves from $SKILLS_CONFIG, then ~/.config/skills/config.json, then the
 bundled config.example.json.
 
 Global flags:
-  --dry-run   Print planned actions; do not write files or move directories.
-  --move      Used with check to relocate detected local skills.
-  --enhance   Used with report to add heuristic skill-improvement suggestions.
-  --depth=N   Used with classify to set max recursion depth.
+  --dry-run      Print planned actions; do not write files or move directories.
+  --move         Used with check to relocate detected local skills.
+  --enhance      Used with report to add heuristic skill-improvement suggestions.
+  --depth=N      Used with classify to set max recursion depth.
   --public=PATH  Override public skills directory for setup.
   --private=PATH Override private skills directory for setup.
   --toolkit=PATH Override toolkit directory for setup.
-  --yes, -y   Skip confirmation prompts.
+  --no-backup    Skip the automatic pre-sync backup.
+  --yes, -y      Skip confirmation prompts.
 
 Environment:
   OMNI_SKILLS_SESSION_YES=1   Skip confirmation prompts for the current shell session.
@@ -123,6 +126,7 @@ async function main() {
   let cmd = process.argv[2];
   const rest = process.argv.slice(3);
   const { flags, positional } = parseArgs(rest);
+
   if (cmd === 'manage') {
     cmd = positional.shift();
   }
@@ -182,7 +186,7 @@ async function main() {
       const { syncTools } = await import('./lib/sync.js');
       const { executeWithConsent } = await import('./lib/prompt.js');
       await executeWithConsent(async (runFlags) => {
-        await syncTools(loadConfig(), positional[0], { dryRun: runFlags.dryRun });
+        await syncTools(loadConfig(), positional[0], { dryRun: runFlags.dryRun, noBackup: flags.noBackup });
       }, flags);
       break;
     }
