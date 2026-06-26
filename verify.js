@@ -145,49 +145,57 @@ for (const [toolName, tool] of Object.entries(config.tools || {})) {
 console.log('\n--- Skills Directories ---');
 for (const [toolName, tool] of Object.entries(config.tools || {})) {
   if (!tool.skillsDir) continue;
-  const dir = absPath(tool.skillsDir);
-  if (!dir || !existsSync(dir)) {
-    fail(`${toolName}: skillsDir missing: ${dir}`);
-    continue;
-  }
-  let entries;
-  try {
-    entries = readdirSync(dir, { withFileTypes: true });
-  } catch {
-    fail(`${toolName}: cannot read skillsDir: ${dir}`);
-    continue;
-  }
-  let broken = 0;
-  let foreign = 0;
-  let ok = 0;
-  for (const entry of entries) {
-    if (entry.name.startsWith('.')) continue;
-    const entryPath = join(dir, entry.name);
-    if (!entry.isSymbolicLink()) continue;
-    let target;
-    try {
-      target = readlinkSync(entryPath);
-    } catch {
-      broken++;
+  const rawDirs = Array.isArray(tool.skillsDir) ? tool.skillsDir : [tool.skillsDir];
+
+  for (const rawDir of rawDirs) {
+    const dir = absPath(rawDir);
+    if (!dir) {
+      fail(`${toolName}: skillsDir unresolved: ${rawDir}`);
       continue;
     }
-    // Handle absolute vs relative symlinks
-    const resolved = target.startsWith('/') ? target : join(dir, target);
-    if (!existsSync(resolved)) {
-      broken++;
-    } else {
-      const isOurs = (config.skillPaths || []).some((sp) => {
-        const absSp = absPath(sp);
-        return resolved.startsWith(absSp);
-      });
-      if (!isOurs) foreign++;
-      else ok++;
+    if (!existsSync(dir)) {
+      fail(`${toolName}: skillsDir missing: ${dir}`);
+      continue;
     }
-  }
-  if (broken === 0 && foreign === 0) {
-    pass(`${toolName}: ${ok} skills, all healthy`);
-  } else {
-    fail(`${toolName}: ${ok} OK, ${broken} broken, ${foreign} foreign`);
+    let entries;
+    try {
+      entries = readdirSync(dir, { withFileTypes: true });
+    } catch {
+      fail(`${toolName}: cannot read skillsDir: ${dir}`);
+      continue;
+    }
+    let broken = 0;
+    let foreign = 0;
+    let ok = 0;
+    for (const entry of entries) {
+      if (entry.name.startsWith('.')) continue;
+      const entryPath = join(dir, entry.name);
+      if (!entry.isSymbolicLink()) continue;
+      let target;
+      try {
+        target = readlinkSync(entryPath);
+      } catch {
+        broken++;
+        continue;
+      }
+      // Handle absolute vs relative symlinks
+      const resolved = target.startsWith('/') ? target : join(dir, target);
+      if (!existsSync(resolved)) {
+        broken++;
+      } else {
+        const isOurs = (config.skillPaths || []).some((sp) => {
+          const absSp = absPath(sp);
+          return resolved.startsWith(absSp);
+        });
+        if (!isOurs) foreign++;
+        else ok++;
+      }
+    }
+    if (broken === 0 && foreign === 0) {
+      pass(`${toolName}: ${ok} skills, all healthy`);
+    } else {
+      fail(`${toolName}: ${ok} OK, ${broken} broken, ${foreign} foreign`);
+    }
   }
 }
 
