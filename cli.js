@@ -145,6 +145,11 @@ Global flags:
   --toolkit=PATH Override toolkit directory for setup.
   --yes, -y   Skip confirmation prompts.
 
+Environment:
+  OMNI_SKILLS_SESSION_YES=1   Skip confirmation prompts for the current shell session.
+                              Useful when running several commands in a row.
+                              Safer than --yes because it expires with the shell.
+
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 Quick start:  omni-skills setup → omni-skills sync all → omni-skills doctor
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
