@@ -2,23 +2,44 @@
 
 ## The `omni-skills` CLI
 
+### Core commands (daily use)
+
 | Command | Does |
 |---------|------|
-| `omni-skills mcp` | Run the MCP server over stdio (what each tool launches). |
-| `omni-skills index` | Regenerate `INDEX.md` files and the managed `SHARED.md` skill block. |
-| `omni-skills workflow [list\|run <name>]` | List chainable skill workflows or run one. |
-| `omni-skills sync [tool\|all] [--dry-run]` | Wire instructions, skills dirs, MCP config, hooks, and assets. |
-| `omni-skills check [--move] [--dry-run]` | Find orphaned skills and dangling/foreign symlinks. |
-| `omni-skills classify [path] [--depth=N] [--dry-run]` | Scan for instruction files, detect sensitive content, sort public/private. |
-| `omni-skills discover` | Scan your entire system for AI tools, instruction files, skill directories, and projects. |
+| `omni-skills sync [tool\|all] [--dry-run] [--no-backup]` | Wire instructions, skills dirs, MCP config, hooks, and assets. |
 | `omni-skills setup` | Auto-scan system, detect tools, suggest cleanup, generate config. |
 | `omni-skills doctor` | Health check: verify symlinks, config, indexes, and skill counts. |
-| `omni-skills report [--enhance]` | Usage statistics and heuristic improvement tips. |
-| `omni-skills init [--dry-run]` | Interactive setup: scan, classify, route, wire. |
-| `omni-skills security [scan]` | Check/install NVIDIA SkillSpector. Scan skills for vulnerabilities. |
-| `omni-skills create [name]` | Create a new skill with interactive wizard. |
-| `omni-skills create from <file>` | Convert an existing file into a skill. |
+| `omni-skills restore [index] [--prune[=N]] [--empty-trash]` | List or restore trashed files; prune old trash. |
+| `omni-skills update [--check]` | Check for updates. |
 | `omni-skills help` | Show help. |
+
+### Secondary commands (`omni-skills manage <subcommand>`)
+
+| Subcommand | Does |
+|------------|------|
+| `manage mcp` | Run the MCP server over stdio (what each tool launches). |
+| `manage index` | Regenerate `INDEX.md` files and the managed `SHARED.md` skill block. |
+| `manage workflow [list\|run <name>]` | List chainable skill workflows or run one. |
+| `manage check [--move] [--dry-run]` | Find orphaned skills and dangling/foreign symlinks. |
+| `manage classify [path] [--depth=N] [--dry-run]` | Scan for instruction files, detect sensitive content, sort public/private. |
+| `manage discover` | Scan your entire system for AI tools, instruction files, skill directories, and projects. |
+| `manage report [--enhance]` | Usage statistics and heuristic improvement tips. |
+| `manage init [--dry-run]` | Interactive setup: scan, classify, route, wire. |
+| `manage security [scan]` | Check/install NVIDIA SkillSpector. Scan skills for vulnerabilities. |
+| `manage create [name]` | Create a new skill with interactive wizard. |
+| `manage create from <file>` | Convert an existing file into a skill. |
+| `manage uninstall` | Remove omni-skills wiring. |
+
+Legacy top-level commands (e.g., `omni-skills check`) still work for backward
+compatibility.
+
+### Why group commands under `manage`?
+
+The original CLI had ~15 top-level commands. Most users only need `sync`,
+`setup`, `doctor`, and `restore` day-to-day. Grouping the rest under `manage`
+reduces cognitive load, shortens `--help`, and makes accidental destructive
+commands harder to run. It is a deliberate friction reduction, not feature
+loss.
 
 ## Quick Start
 
@@ -45,6 +66,39 @@ node verify.js
 omni-skills setup --public=~/my-skills-public --private=~/my-skills-private
 omni-skills setup --toolkit=/path/to/this/repo
 ```
+
+### Skipping confirmations for a session
+
+Several commands preview changes in dry-run mode before writing. To run a batch
+of commands without re-confirming each one, use the session variable:
+
+```bash
+export OMNI_SKILLS_SESSION_YES=1
+omni-skills setup
+omni-skills sync all
+omni-skills doctor
+```
+
+This is safer than `--yes` because it expires when the shell closes.
+
+## Pre-Sync Backups
+
+Before `omni-skills sync` writes any instruction file, MCP config, hooks file,
+or skill directory, it copies the current versions to:
+
+```
+~/.config/skills/backups/<ISO-timestamp>/
+```
+
+Example output:
+
+```text
+[backup] created pre-sync backup at /Users/me/.config/skills/backups/2026-06-26T15-12-52-147Z
+```
+
+If a tool stops working after a sync, restore its config from that directory.
+Backups are skipped with `--dry-run` or `--no-backup`. Backups older than 30
+days are pruned automatically.
 
 ## How I Use This (Real Stats)
 

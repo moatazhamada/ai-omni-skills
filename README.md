@@ -153,26 +153,97 @@ extension.
 
 ## CLI Commands
 
+Core commands are the ones you run every day. Secondary commands are grouped
+under `manage` to keep the main surface small.
+
+### Core commands
+
 | Command | Does |
 |---------|------|
-| `omni-skills mcp` | Run the MCP server over stdio. |
-| `omni-skills index` | Regenerate `INDEX.md` and managed `SHARED.md`. |
-| `omni-skills workflow [list\|run <name>]` | List or run chainable skill workflows. |
-| `omni-skills sync [tool\|all] [--dry-run]` | Wire instructions, skills dirs, MCP config, hooks, assets. |
-| `omni-skills check [--move] [--dry-run]` | Find orphaned skills and dangling symlinks. |
-| `omni-skills classify [path] [--depth=N] [--dry-run]` | Scan and sort instruction files public/private. |
-| `omni-skills discover` | Scan system for AI tools, instruction files, skill dirs. |
+| `omni-skills sync [tool\|all] [--dry-run] [--no-backup]` | Wire instructions, skills dirs, MCP config, hooks, assets. |
 | `omni-skills setup` | Auto-scan, detect tools, generate config. |
 | `omni-skills doctor` | Health check symlinks, config, indexes, skill counts. |
-| `omni-skills report [--enhance]` | Usage statistics and improvement tips. |
-| `omni-skills init [--dry-run]` | Interactive setup: scan, classify, route, wire. |
-| `omni-skills security [scan]` | SkillSpector vulnerability scanning. |
-| `omni-skills create [name]` | Create a new skill with a wizard. |
-| `omni-skills create from <file>` | Convert an existing file into a skill. |
+| `omni-skills restore [index] [--prune[=N]] [--empty-trash]` | List or restore trashed files, prune old trash. |
+| `omni-skills update [--check]` | Check for updates. |
 | `omni-skills help` | Show help. |
+
+### Secondary commands (`omni-skills manage <subcommand>`)
+
+| Subcommand | Does |
+|------------|------|
+| `manage mcp` | Run the MCP server over stdio. |
+| `manage index` | Regenerate `INDEX.md` and managed `SHARED.md`. |
+| `manage workflow [list\|run <name>]` | List or run chainable skill workflows. |
+| `manage check [--move] [--dry-run]` | Find orphaned skills and dangling symlinks. |
+| `manage classify [path] [--depth=N] [--dry-run]` | Scan and sort instruction files public/private. |
+| `manage discover` | Scan system for AI tools, instruction files, skill dirs. |
+| `manage report [--enhance]` | Usage statistics and improvement tips. |
+| `manage init [--dry-run]` | Interactive setup: scan, classify, route, wire. |
+| `manage security [scan]` | SkillSpector vulnerability scanning. |
+| `manage create [name]` | Create a new skill with a wizard. |
+| `manage create from <file>` | Convert an existing file into a skill. |
+| `manage uninstall` | Remove omni-skills wiring. |
+
+Legacy top-level commands (e.g., `omni-skills check`) still work for backward
+compatibility, but new scripts should prefer `omni-skills manage check`.
 
 See [docs/usage.md](docs/usage.md) for detailed usage, real stats, health
 checks, verification, and tests.
+
+---
+
+## Why These CLI Changes?
+
+The original CLI had ~15 top-level commands. That made the tool look heavier
+than it is and increased the chance of running the wrong thing. The refactor
+keeps the daily surface tiny (`sync`, `setup`, `doctor`, `restore`) and moves
+everything else behind `manage`. The goal is **less friction, not more
+features**.
+
+---
+
+## Automatic Pre-Sync Backup
+
+`omni-skills sync` can rewrite instruction files, MCP configs, hooks, and skill
+directories. Before it writes anything, it copies the current versions to:
+
+```
+~/.config/skills/backups/<ISO-timestamp>/
+```
+
+If a sync ever breaks a tool config, you can restore manually from that
+directory. Backups are skipped with `--dry-run` (nothing is changed) or
+`--no-backup` (you know what you're doing). Old backups are pruned after 30
+days automatically.
+
+---
+
+## Session-Aware Consent
+
+Several commands (`sync`, `setup`, `check`, `classify`, `init`) default to a
+dry-run preview before they write anything. If you run several of them in a row,
+re-confirming every time is tedious; `--yes` is risky because it persists for
+only that single invocation. Use the environment variable instead:
+
+```bash
+export OMNI_SKILLS_SESSION_YES=1
+omni-skills setup
+omni-skills sync all
+omni-skills doctor
+```
+
+This skips confirmations for the current shell session only. When the shell
+closes, the override disappears.
+
+---
+
+## Picking the Right AI Tool for the Task
+
+Omni Skills keeps your skills in one place; it does not tell you which AI agent
+to use for a given task. For that, see
+[`ai-tool-router`](https://github.com/moatazhamada/ai-tool-router) — a separate,
+zero-dependency skill that scans your installed agents, remembers their costs
+and strengths, and suggests the cheapest capable tool (plus a fallback).
 
 ---
 

@@ -1,5 +1,28 @@
 # Changelog
 
+## [Unreleased]
+
+### Added
+- **Automatic pre-sync backup** — `omni-skills sync` now copies affected
+  instruction files, MCP configs, hooks files, and the skills config to
+  `~/.config/skills/backups/<timestamp>/` before writing. Skipped with
+  `--dry-run` or `--no-backup`; old backups pruned after 30 days.
+- **Session-aware consent** — `OMNI_SKILLS_SESSION_YES=1` skips confirmation
+  prompts for the current shell only, safer than `--yes` for batch workflows.
+- **Idempotent compiled-skill sync** — unchanged skills are no longer rewritten,
+  making repeated `sync` calls quiet and fast.
+
+### Changed
+- **CLI command consolidation** — secondary commands moved under
+  `omni-skills manage <subcommand>`: `mcp`, `index`, `workflow`, `check`,
+  `classify`, `discover`, `report`, `init`, `security`, `create`, `uninstall`.
+  Core surface is now `sync`, `setup`, `doctor`, `restore`, `update`, `help`.
+  Legacy top-level commands still work for backward compatibility.
+- **Simplified setup** — removed interactive SkillSpector, cron scheduling, and
+  remote-backup prompts from `setup`. Optional next steps are printed instead.
+- **README / usage docs** — rewritten to explain the smaller core surface,
+  backup behavior, session consent, and the relationship to `ai-tool-router`.
+
 ## [1.4.0] - 2026-06-24
 
 ### Added
