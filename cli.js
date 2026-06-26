@@ -34,6 +34,7 @@ function parseArgs(argv) {
     dryRun: argv.includes('--dry-run'),
     move: argv.includes('--move'),
     enhance: argv.includes('--enhance'),
+    yes: argv.includes('--yes') || argv.includes('-y'),
   };
 
   // Extract --depth=N
@@ -129,6 +130,7 @@ Global flags:
   --public=PATH  Override public skills directory for setup.
   --private=PATH Override private skills directory for setup.
   --toolkit=PATH Override toolkit directory for setup.
+  --yes, -y   Skip confirmation prompts.
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 Quick start:  omni-skills setup → omni-skills sync all → omni-skills doctor
@@ -195,12 +197,18 @@ async function main() {
     }
     case 'sync': {
       const { syncTools } = await import('./lib/sync.js');
-      await syncTools(loadConfig(), positional[0], { dryRun: flags.dryRun });
+      const { executeWithConsent } = await import('./lib/prompt.js');
+      await executeWithConsent(async (runFlags) => {
+        await syncTools(loadConfig(), positional[0], { dryRun: runFlags.dryRun });
+      }, flags);
       break;
     }
     case 'check': {
       const { checkSkills } = await import('./lib/check.js');
-      await checkSkills(loadConfig(), { move: flags.move, dryRun: flags.dryRun });
+      const { executeWithConsent } = await import('./lib/prompt.js');
+      await executeWithConsent(async (runFlags) => {
+        await checkSkills(loadConfig(), { move: flags.move, dryRun: runFlags.dryRun });
+      }, flags);
       break;
     }
     case 'report': {
@@ -210,7 +218,10 @@ async function main() {
     }
     case 'classify': {
       const { classifyInstructions } = await import('./lib/classify.js');
-      await classifyInstructions(loadConfig(), positional[0], { dryRun: flags.dryRun, depth: flags.depth });
+      const { executeWithConsent } = await import('./lib/prompt.js');
+      await executeWithConsent(async (runFlags) => {
+        await classifyInstructions(loadConfig(), positional[0], { dryRun: runFlags.dryRun, depth: flags.depth });
+      }, flags);
       break;
     }
     case 'doctor': {
@@ -225,16 +236,23 @@ async function main() {
     }
     case 'setup': {
       const { runSetup } = await import('./lib/setup.js');
-      await runSetup({
-        publicPath: flags.publicPath,
-        privatePath: flags.privatePath,
-        toolkitDir: flags.toolkitDir,
-      });
+      const { executeWithConsent } = await import('./lib/prompt.js');
+      await executeWithConsent(async (runFlags) => {
+        await runSetup({
+          publicPath: flags.publicPath,
+          privatePath: flags.privatePath,
+          toolkitDir: flags.toolkitDir,
+          dryRun: runFlags.dryRun
+        });
+      }, flags);
       break;
     }
     case 'init': {
       const { initSkills } = await import('./lib/init.js');
-      await initSkills(loadConfig(), { dryRun: flags.dryRun });
+      const { executeWithConsent } = await import('./lib/prompt.js');
+      await executeWithConsent(async (runFlags) => {
+        await initSkills(loadConfig(), { dryRun: runFlags.dryRun });
+      }, flags);
       break;
     }
     case 'security': {
