@@ -1,6 +1,6 @@
 import { describe, it } from 'node:test';
 import assert from 'node:assert';
-import { absPath, moveToTrash, parentDir, ensureSymlink, upsertManagedBlock } from '../lib/fs-utils.js';
+import { absPath, moveToTrash, listTrash, restoreTrashItem, parentDir, ensureSymlink, upsertManagedBlock } from '../lib/fs-utils.js';
 import { mkdirSync, writeFileSync, readFileSync, existsSync, rmSync, readdirSync } from 'node:fs';
 import { join } from 'node:path';
 import { homedir, tmpdir } from 'node:os';
@@ -93,6 +93,49 @@ describe('fs-utils.js', () => {
 
     it('is a no-op when the path does not exist', () => {
       assert.doesNotThrow(() => moveToTrash(join(tmpdir(), `does-not-exist-${Date.now()}.txt`)));
+    });
+  });
+
+  describe('listTrash and restoreTrashItem', () => {
+    it('lists trashed items and restores by index', () => {
+      const id = Date.now();
+      const tmpFile = join(tmpdir(), `skills-restore-${id}.txt`);
+      writeFileSync(tmpFile, 'restore me');
+
+      moveToTrash(tmpFile);
+
+      const items = listTrash();
+      const item = items.find((i) => i.originalPath === tmpFile);
+      assert.ok(item, 'Trashed item should appear in listTrash');
+
+      const restored = restoreTrashItem(item.index);
+      assert.strictEqual(restored, tmpFile);
+      assert.ok(existsSync(tmpFile), 'Restored file should exist at original path');
+
+      rmSync(tmpFile, { force: true });
+    });
+
+    it('throws when restoring an unknown index', () => {
+      assert.throws(() => restoreTrashItem(99999), /not found/);
+    });
+
+    it('throws when restore target already exists', () => {
+      const id = Date.now();
+      const tmpFile = join(tmpdir(), `skills-restore-collision-${id}.txt`);
+      writeFileSync(tmpFile, 'original');
+
+      moveToTrash(tmpFile);
+      writeFileSync(tmpFile, 'new file in the way');
+
+      const items = listTrash();
+      const item = items.find((i) => i.originalPath === tmpFile);
+      assert.ok(item);
+      assert.throws(() => restoreTrashItem(item.index), /already exists/);
+
+      // Cleanup.
+      rmSync(tmpFile, { force: true });
+      const trashed = join(homedir(), '.omni-skills-trash', item.trashedName);
+      rmSync(trashed, { force: true });
     });
   });
 

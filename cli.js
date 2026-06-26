@@ -88,6 +88,8 @@ Subcommands:
           skill directories, and projects with AI configuration. Reports what
           it finds and suggests next steps.
   doctor           Run health checks: verify symlinks, config, indexes, and skills.
+  restore [index]  List trashed files or restore a trashed item to its original path.
+          Run without an index to see the list; pass an index to restore.
   setup [--public=PATH] [--private=PATH] [--toolkit=PATH]
           Auto-scan your system, detect installed AI tools, find instruction files
           and skills, suggest cleanup, and generate ~/.config/skills/config.json.
@@ -227,6 +229,27 @@ async function main() {
     case 'doctor': {
       const { runDoctor } = await import('./lib/doctor.js');
       await runDoctor(loadConfig());
+      break;
+    }
+    case 'restore': {
+      const { listTrash, restoreTrashItem } = await import('./lib/fs-utils.js');
+      const index = positional[0];
+      if (index === undefined) {
+        const items = listTrash();
+        if (items.length === 0) {
+          console.log('Trash is empty.');
+          break;
+        }
+        console.log('Trashed items:');
+        for (const item of items) {
+          const date = item.timestamp ? new Date(item.timestamp).toISOString() : 'unknown';
+          const origin = item.originalPath || '(unknown original path)';
+          console.log(`  [${item.index}] ${item.trashedName} -> ${origin} (${date})`);
+        }
+      } else {
+        const restoredPath = restoreTrashItem(Number(index));
+        console.log(`Restored: ${restoredPath}`);
+      }
       break;
     }
     case 'discover': {
