@@ -1,6 +1,6 @@
 # Changelog
 
-## [Unreleased]
+## [1.5.0] - 2026-06-26
 
 ### Added
 - **Automatic pre-sync backup** — `omni-skills sync` now copies affected
