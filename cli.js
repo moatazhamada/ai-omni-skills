@@ -56,6 +56,14 @@ function parseArgs(argv) {
   const toolkitArg = argv.find((a) => a.startsWith('--toolkit='));
   if (toolkitArg) flags.toolkitDir = toolkitArg.split('=')[1];
 
+  flags.emptyTrash = argv.includes('--empty-trash');
+
+  const pruneArg = argv.find((a) => a.startsWith('--prune'));
+  if (pruneArg) {
+    const val = pruneArg.includes('=') ? parseInt(pruneArg.split('=')[1], 10) : NaN;
+    flags.prune = !isNaN(val) && val > 0 ? val : true;
+  }
+
   const positional = argv.filter((a) => !a.startsWith('--'));
   return { flags, positional };
 }
@@ -88,8 +96,11 @@ Subcommands:
           skill directories, and projects with AI configuration. Reports what
           it finds and suggests next steps.
   doctor           Run health checks: verify symlinks, config, indexes, and skills.
-  restore [index]  List trashed files or restore a trashed item to its original path.
+  restore [index] [--prune[=N]] [--empty-trash]
+          List trashed files or restore a trashed item to its original path.
           Run without an index to see the list; pass an index to restore.
+          --prune removes items older than N days (default 30).
+          --empty-trash permanently deletes every trashed item.
   setup [--public=PATH] [--private=PATH] [--toolkit=PATH]
           Auto-scan your system, detect installed AI tools, find instruction files
           and skills, suggest cleanup, and generate ~/.config/skills/config.json.
@@ -232,8 +243,22 @@ async function main() {
       break;
     }
     case 'restore': {
-      const { listTrash, restoreTrashItem } = await import('./lib/fs-utils.js');
+      const { listTrash, restoreTrashItem, pruneTrash, emptyTrash } = await import('./lib/fs-utils.js');
       const index = positional[0];
+
+      if (flags.emptyTrash) {
+        const removed = emptyTrash();
+        console.log(`Emptied trash (${removed.length} item(s) permanently deleted).`);
+        break;
+      }
+
+      if (flags.prune) {
+        const days = typeof flags.prune === 'number' ? flags.prune : 30;
+        const removed = pruneTrash(days);
+        console.log(`Pruned ${removed.length} item(s) older than ${days} day(s).`);
+        break;
+      }
+
       if (index === undefined) {
         const items = listTrash();
         if (items.length === 0) {

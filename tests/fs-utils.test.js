@@ -1,6 +1,6 @@
 import { describe, it } from 'node:test';
 import assert from 'node:assert';
-import { absPath, moveToTrash, listTrash, restoreTrashItem, parentDir, ensureSymlink, upsertManagedBlock } from '../lib/fs-utils.js';
+import { absPath, moveToTrash, listTrash, restoreTrashItem, pruneTrash, emptyTrash, parentDir, ensureSymlink, upsertManagedBlock } from '../lib/fs-utils.js';
 import { mkdirSync, writeFileSync, readFileSync, existsSync, rmSync, readdirSync } from 'node:fs';
 import { join } from 'node:path';
 import { homedir, tmpdir } from 'node:os';
@@ -136,6 +136,46 @@ describe('fs-utils.js', () => {
       rmSync(tmpFile, { force: true });
       const trashed = join(homedir(), '.omni-skills-trash', item.trashedName);
       rmSync(trashed, { force: true });
+    });
+
+    it('prunes trashed items older than the given age', () => {
+      const id = Date.now();
+      const tmpFile = join(tmpdir(), `skills-prune-${id}.txt`);
+      writeFileSync(tmpFile, 'old');
+
+      moveToTrash(tmpFile);
+      const items = listTrash();
+      const item = items.find((i) => i.originalPath === tmpFile);
+      assert.ok(item);
+
+      // Simulate an old entry by rewriting the manifest timestamp.
+      const manifestPath = join(homedir(), '.omni-skills-trash', '.manifest.jsonl');
+      const manifest = readFileSync(manifestPath, 'utf8')
+        .split('\n')
+        .filter(Boolean)
+        .map((line) => JSON.parse(line));
+      const entry = manifest.find((m) => m.originalPath === tmpFile);
+      assert.ok(entry);
+      entry.timestamp = Date.now() - 40 * 24 * 60 * 60 * 1000;
+      writeFileSync(manifestPath, manifest.map((m) => JSON.stringify(m)).join('\n') + '\n');
+
+      const removed = pruneTrash(30);
+      assert.strictEqual(removed.length, 1);
+      assert.strictEqual(removed[0].originalPath, tmpFile);
+      assert.ok(!listTrash().some((i) => i.originalPath === tmpFile));
+    });
+
+    it('empties the trash', () => {
+      const id = Date.now();
+      const tmpFile = join(tmpdir(), `skills-empty-${id}.txt`);
+      writeFileSync(tmpFile, 'delete me');
+
+      moveToTrash(tmpFile);
+      assert.ok(listTrash().length > 0);
+
+      const removed = emptyTrash();
+      assert.ok(removed.length > 0);
+      assert.strictEqual(listTrash().length, 0);
     });
   });
 
