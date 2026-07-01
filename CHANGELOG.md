@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.5.5] - 2026-07-01
+
+### Fixed
+- **CI/CD npm authentication** — the `auto-release` workflow now explicitly
+  passes `NODE_AUTH_TOKEN` from the `NPM_TOKEN` secret to `npm publish`,
+  restoring automated npm publishing.
+
 ## [1.5.4] - 2026-07-01
 
 ### Fixed
