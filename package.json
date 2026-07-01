@@ -1,6 +1,6 @@
 {
   "name": "ai-omni-skills",
-  "version": "1.5.3",
+  "version": "1.5.4",
   "type": "module",
   "description": "Unify scattered AI skills across all your tools. One canonical store. 26 AI tools. Zero drift.",
   "bin": {

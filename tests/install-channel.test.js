@@ -1,5 +1,8 @@
 import { describe, it } from 'node:test';
 import assert from 'node:assert';
+import { mkdirSync, writeFileSync, symlinkSync, rmSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
 import {
   CHANNEL_DIRECT_BINARY,
   CHANNEL_HOMEBREW,
@@ -71,12 +74,22 @@ describe('install-channel.js', () => {
     });
 
     it('detects npm through the npm bin shim symlink', () => {
+      const tmp = join(tmpdir(), `omni-channel-npm-${Date.now()}`);
+      const pkgDir = join(tmp, 'lib', 'node_modules', 'ai-omni-skills');
+      const binDir = join(tmp, 'bin');
+      mkdirSync(pkgDir, { recursive: true });
+      mkdirSync(binDir, { recursive: true });
+      writeFileSync(join(pkgDir, 'cli.js'), '#!/usr/bin/env node\n', { mode: 0o644 });
+      symlinkSync(join(pkgDir, 'cli.js'), join(binDir, 'omni-skills'));
+
       const channel = detectInstallChannel({
         execPath: '/usr/local/bin/node',
         argv0: '/usr/local/bin/node',
-        argv1: '/Users/mm/.npm-global/bin/omni-skills',
+        argv1: join(binDir, 'omni-skills'),
       });
       assert.strictEqual(channel, CHANNEL_NPM);
+
+      rmSync(tmp, { recursive: true, force: true });
     });
 
     it('detects npm when running under Bun from the package', () => {

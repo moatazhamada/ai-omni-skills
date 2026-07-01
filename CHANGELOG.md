@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.5.4] - 2026-07-01
+
+### Fixed
+- **Hermetic npm shim test** — the install-channel test for npm bin shims now
+  creates its own temporary symlink structure instead of relying on the local
+  `~/.npm-global/bin/omni-skills` path, so CI passes on clean runners.
+
 ## [1.5.3] - 2026-07-01
 
 ### Fixed
