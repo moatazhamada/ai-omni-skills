@@ -70,6 +70,15 @@ describe('install-channel.js', () => {
       assert.strictEqual(channel, CHANNEL_NPM);
     });
 
+    it('detects npm through the npm bin shim symlink', () => {
+      const channel = detectInstallChannel({
+        execPath: '/usr/local/bin/node',
+        argv0: '/usr/local/bin/node',
+        argv1: '/Users/mm/.npm-global/bin/omni-skills',
+      });
+      assert.strictEqual(channel, CHANNEL_NPM);
+    });
+
     it('detects npm when running under Bun from the package', () => {
       const channel = detectInstallChannel({
         execPath: '/opt/homebrew/bin/bun',

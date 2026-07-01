@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.5.3] - 2026-07-01
+
+### Fixed
+- **npm global channel detection** — the npm bin shim (`~/.npm-global/bin/omni-skills`)
+  is now resolved to the package directory so `omni-skills update` correctly reports
+  "npm package" and runs `npm install -g` instead of showing the native-binary
+  download instruction.
+
 ## [1.5.2] - 2026-07-01
 
 ### Added
