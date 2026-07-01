@@ -9,7 +9,7 @@
 
 > **I try every AI tool. My skills scattered everywhere. This unifies them.**
 
-> **🎉 v1.4.0 is out — native binaries for macOS, Linux, and Windows; Homebrew and Winget support; and a skill compiler pipeline. [Read the announcement →](https://github.com/moatazhamada/ai-omni-skills/discussions/2)**
+> **🎉 v1.5.0 is out — automatic pre-sync backups, session-aware consent, a smaller core CLI (`sync`, `setup`, `doctor`, `restore`, `update`, `help`), and secondary commands moved under `manage`. [Read the changelog →](CHANGELOG.md)**
 
 A CLI + MCP server that takes the skills you've collected across all your AI
 coding tools and unifies them into a single canonical store. Then it syncs them

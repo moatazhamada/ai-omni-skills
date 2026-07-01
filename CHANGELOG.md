@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.5.1] - 2026-07-01
+
+### Fixed
+- **Version reporting mismatch** — the published `v1.5.0` tarball reported its
+  own version as `v1.4.0` because `lib/version.js` was not bumped before publish.
+  `omni-skills --version` and the update checker now correctly report `v1.5.1`.
+
 ## [1.5.0] - 2026-06-26
 
 ### Added
