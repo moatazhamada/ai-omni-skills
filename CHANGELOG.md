@@ -1,5 +1,19 @@
 # Changelog
 
+## [1.5.6] - 2026-07-01
+
+### Added
+- **Setup reimport on reinstall** — `omni-skills setup` now behaves like a
+  first-launch importer. If `config.json.bak` exists from a previous uninstall,
+  it offers to restore the previous configuration. When no backup exists, it
+  scans for existing skills directories (including non-standard roots such as
+  `~/Main/Projects`) and lets you pick one, enter a custom path, or start fresh.
+
+### Fixed
+- **CLI flag wiring for setup** — `--public=PATH`, `--private=PATH`, and
+  `--toolkit=PATH` are now correctly passed into `setup` and used as the skills
+  store and toolkit paths instead of being silently ignored.
+
 ## [1.5.5] - 2026-07-01
 
 ### Fixed

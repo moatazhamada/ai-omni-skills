@@ -257,14 +257,25 @@ async function main() {
       break;
     }
     case 'setup': {
-      const { runSetup } = await import('./lib/setup.js');
+      const { runSetup, offerImportOrFresh } = await import('./lib/setup.js');
+      const resolved = await offerImportOrFresh({
+        publicPath: flags.publicPath,
+        privatePath: flags.privatePath,
+        toolkitDir: flags.toolkitDir,
+        yes: flags.yes,
+        dryRun: flags.dryRun,
+      });
+      if (resolved.imported) {
+        console.log(`Reused previous setup: ${resolved.skillsPath}`);
+        console.log('Run `omni-skills sync all` to wire into your tools.');
+        break;
+      }
       const { executeWithConsent } = await import('./lib/prompt.js');
       await executeWithConsent(async (runFlags) => {
         await runSetup({
-          publicPath: flags.publicPath,
-          privatePath: flags.privatePath,
-          toolkitDir: flags.toolkitDir,
-          dryRun: runFlags.dryRun
+          skillsPath: resolved.skillsPath,
+          toolkitDir: resolved.toolkitDir,
+          dryRun: runFlags.dryRun,
         });
       }, flags);
       break;
