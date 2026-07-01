@@ -320,13 +320,19 @@ async function main() {
     }
     case 'update': {
       const { showUpdateStatus } = await import('./lib/version-check.js');
-      const { isCompiledBinary, getUpdateInstruction } = await import('./lib/version.js');
+      const {
+        CHANNEL_DIRECT_BINARY,
+        detectInstallChannel,
+        getInstallChannelLabel,
+        getUpdateInstruction,
+      } = await import('./lib/version.js');
       const checkOnly = rest.includes('--check');
       const result = await showUpdateStatus({ silent: false });
       if (result && result.status !== 'up-to-date' && !checkOnly) {
-        if (isCompiledBinary()) {
-          console.log('Compiled binary updates are not performed in-place.');
-          console.log(`To upgrade: ${getUpdateInstruction()}`);
+        const channel = detectInstallChannel();
+        if (channel === CHANNEL_DIRECT_BINARY) {
+          console.log('Native binary updates are not performed in-place.');
+          console.log(`To upgrade: ${getUpdateInstruction(channel)}`);
           break;
         }
         const readline = await import('node:readline');
@@ -337,7 +343,7 @@ async function main() {
         rl.close();
         if (answer.trim().toLowerCase() !== 'n' && answer.trim().toLowerCase() !== 'no') {
           const { execSync } = await import('node:child_process');
-          const updateCommand = getUpdateInstruction();
+          const updateCommand = getUpdateInstruction(channel);
           console.log(`Running: ${updateCommand}`);
           try {
             execSync(updateCommand, { stdio: 'inherit' });

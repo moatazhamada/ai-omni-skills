@@ -1,5 +1,21 @@
 # Changelog
 
+## [1.5.2] - 2026-07-01
+
+### Added
+- **Channel-aware updates** — `omni-skills update` now detects how it was
+  installed (npm, Homebrew, Winget, or direct binary) and runs the matching
+  upgrade command instead of always using `npm install -g`.
+- **Install-source detection** — the version banner and update prompt now show
+  the active channel (e.g. "npm package", "Homebrew formula").
+- **Duplicate-installation detection in doctor** — `omni-skills doctor` scans
+  PATH for multiple `omni-skills` binaries, reports which one is active, which
+  are shadowed, and warns when stale copies could hide updates.
+
+### Fixed
+- **Correct update command for non-npm installs** — Homebrew and Winget users
+  no longer receive the npm upgrade instruction.
+
 ## [1.5.1] - 2026-07-01
 
 ### Fixed
