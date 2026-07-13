@@ -109,9 +109,14 @@ omni-skills setup --toolkit=/path/to/this/repo
 | **C** | Other assets | Symlinks from your config repo to per-tool paths |
 
 When you run `omni-skills sync`, each `SKILL.md` is compiled on the fly into the
-format each target tool expects. You can also add `executionBoundary` guards in
-the YAML frontmatter to restrict file writing, network access, or require shell
-execution confirmations per tool.
+format each target tool expects. You can also add `executionBoundary` guidance
+in the YAML frontmatter for file writing, network access, or shell confirmation
+expectations. The target tool's sandbox, approvals, and managed policies remain
+the enforcement layer.
+
+For Codex, sync also moves obsolete Omni-managed output from the former
+`~/.codex/skills` directory to recoverable trash while preserving unmanaged
+content.
 
 See [docs/architecture.md](docs/architecture.md) for the full compiler pipeline,
 execution boundaries, and MCP server details.
@@ -123,7 +128,7 @@ execution boundaries, and MCP server details.
 | Tool | Type | Config | Skills Dir | MCP |
 |------|------|--------|------------|-----|
 | **Claude Code** | CLI | `~/.claude/CLAUDE.md` | ✓ | ✓ |
-| **OpenAI Codex** | CLI | `~/.codex/AGENTS.md` | ✓ | ✓ |
+| **OpenAI Codex** | CLI | `~/.codex/AGENTS.md` | `~/.agents/skills` | ✓ |
 | **Kimi** | CLI | `~/.kimi/AGENTS.md` | ✓ | ✓ |
 | **Gemini CLI** | CLI | `~/.gemini/GEMINI.md` | — | ✓ |
 | **Cursor** | Editor | `~/.cursor/rules/` | — | ✓ |

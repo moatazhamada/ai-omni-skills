@@ -1,5 +1,28 @@
 # Changelog
 
+## [1.5.7] - 2026-07-13
+
+### Added
+- **Current Codex skill layout** — Codex skills now compile into
+  `~/.agents/skills` with the required `name` and `description` frontmatter.
+- **Multi-file skill resources** — compiled skills retain managed links to
+  optional `scripts/`, `references/`, `assets/`, and `agents/` directories.
+- **Safe legacy cleanup** — obsolete Omni-managed output under
+  `~/.codex/skills` moves to recoverable trash while unmanaged content is
+  preserved.
+
+### Fixed
+- **Codex MCP and hook TOML** — table keys, commands, arguments, matchers, and
+  environment values are escaped safely, including commands with apostrophes.
+- **Codex skill collision safety** — existing unmanaged skill directories are
+  never replaced; Omni Skills only refreshes directories carrying its marker or
+  recognizable legacy generated output.
+- **Codex configuration migration** — existing configs using
+  `~/.codex/skills` are normalized to the current `~/.agents/skills` location.
+- **Execution-boundary documentation** — clarified that rendered boundaries are
+  agent guidance while tool sandboxes, approvals, and managed policies provide
+  enforcement.
+
 ## [1.5.6] - 2026-07-01
 
 ### Added

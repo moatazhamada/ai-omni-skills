@@ -25,8 +25,17 @@ format the target tool expects:
 
 - **Claude / Cursor / Kimi / OpenCode / KiloCode** → markdown with YAML
   frontmatter.
-- **Codex** → markdown + TOML metadata (`SKILL.metadata.toml`).
+- **Codex** → `SKILL.md` with the required `name` and `description` YAML
+  frontmatter, installed in `~/.agents/skills`.
 - **Gemini** → markdown + JSON metadata (`SKILL.metadata.json`).
+
+Optional `scripts/`, `references/`, `assets/`, and `agents/` directories remain
+attached to compiled skills with managed symlinks, so multi-file skills keep
+working without duplicating their resources.
+
+When Codex sync runs, obsolete Omni-managed output under the former
+`~/.codex/skills` location is moved to Omni Skills' recoverable trash. Existing
+unmanaged skills and files in that directory are preserved.
 
 The compiler reads the canonical skill, applies tool-specific overrides, and
 writes the result into each tool's skills directory.
@@ -55,8 +64,9 @@ executionBoundary:
 ---
 ```
 
-These boundaries are translated into each tool's native format so every tool
-sees the same guardrails.
+These boundaries are rendered into each compiled skill so every tool sees the
+same instructions. They guide agent behavior; they are not a substitute for
+the tool's sandbox, approval, or managed-policy enforcement.
 
 ## The MCP server
 

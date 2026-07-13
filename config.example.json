@@ -47,7 +47,7 @@
     "codex": {
       "instructionFile": "~/.codex/AGENTS.md",
       "instructionMode": "symlink",
-      "skillsDir": "~/.codex/skills",
+      "skillsDir": "~/.agents/skills",
       "mcp": { "file": "~/.codex/config.toml", "format": "codex-toml" },
       "hooks": { "file": "~/.codex/config.toml", "format": "codex-toml" }
     },

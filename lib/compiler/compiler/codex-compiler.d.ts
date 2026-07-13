@@ -6,6 +6,5 @@ export declare class CodexCompiler implements ToolCompiler {
     readonly targetTool = SupportedTool.CODEX;
     private readonly markdownCompiler;
     compile(skillConfig: SkillConfig, skillBody: string): CompiledSkillOutput;
-    private buildTomlMetadata;
 }
 //# sourceMappingURL=codex-compiler.d.ts.map
