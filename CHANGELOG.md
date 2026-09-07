@@ -1,5 +1,10 @@
 # Changelog
 
+## [1.5.10] - 2026-09-07
+
+### Changed
+- Bumped version to 1.5.10.
+
 ## [1.5.9] - 2026-09-07
 
 ### Added
