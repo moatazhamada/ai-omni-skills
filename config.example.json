@@ -36,6 +36,10 @@
       "target": "~/.claude/agents/example-agent.md"
     }
   ],
+  "projectSkillsDirs": {
+    "$comment": "Optional per-project skill directories, resolved relative to the nearest .git root when running sync from inside a project. Example: codex uses .agents/skills inside the project.",
+    "codex": ".agents/skills"
+  },
   "tools": {
     "claude": {
       "instructionFile": "~/.claude/CLAUDE.md",

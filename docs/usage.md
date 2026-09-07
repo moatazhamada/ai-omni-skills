@@ -100,6 +100,29 @@ If a tool stops working after a sync, restore its config from that directory.
 Backups are skipped with `--dry-run` or `--no-backup`. Backups older than 30
 days are pruned automatically.
 
+## Project-Local Skills Directories
+
+Some AI tools also read skills from inside the project you are working on. Codex,
+for example, loads skills from `<project>/.agents/skills/`. To sync your canonical
+skills there as well, add a `projectSkillsDirs` map to your config:
+
+```json
+{
+  "projectSkillsDirs": {
+    "codex": ".agents/skills"
+  }
+}
+```
+
+When you run `omni-skills sync all` from inside a project (any directory under a
+`.git` root), Omni Skills also writes compiled skills to
+`<project-root>/.agents/skills/`. Paths are resolved relative to the nearest
+`.git` parent, so running sync from a subdirectory still targets the correct
+project folder.
+
+Existing skill directories without an `.omni-skills-managed` marker are left
+alone to avoid overwriting user-created content.
+
 ## How I Use This (Real Stats)
 
 My personal setup — after unifying:

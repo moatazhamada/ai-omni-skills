@@ -186,7 +186,7 @@ async function main() {
       const { syncTools } = await import('./lib/sync.js');
       const { executeWithConsent } = await import('./lib/prompt.js');
       await executeWithConsent(async (runFlags) => {
-        await syncTools(loadConfig(), positional[0], { dryRun: runFlags.dryRun, noBackup: flags.noBackup });
+        return await syncTools(loadConfig(), positional[0], { dryRun: runFlags.dryRun, noBackup: flags.noBackup });
       }, flags);
       break;
     }
@@ -387,7 +387,36 @@ async function main() {
   }
 }
 
-enforceMajorVersion().then(() => main()).catch((err) => {
-  console.error(err);
+enforceMajorVersion()
+  .then(() => main())
+  .then(() => {
+    process.exit(0);
+  })
+  .catch((err) => {
+  const verbose = process.argv.includes('--verbose');
+
+  // Handle known error types with friendly messages
+  if (err.code === 'ENOENT') {
+    console.error(`\n  ✗ File or directory not found: ${err.path || '(unknown)'}`);
+    console.error('    Check that your config paths exist and are spelled correctly.');
+    console.error('    Run `omni-skills doctor` to diagnose path issues.\n');
+  } else if (err.code === 'EACCES' || err.code === 'EPERM') {
+    console.error(`\n  ✗ Permission denied: ${err.path || '(unknown)'}`);
+    console.error('    Check file permissions or try running with appropriate access.\n');
+  } else if (err.message?.includes('config')) {
+    console.error(`\n  ✗ Configuration error: ${err.message}`);
+    console.error('    Run `omni-skills setup` to regenerate your config.\n');
+  } else {
+    console.error(`\n  ✗ ${err.message || err}`);
+    if (!verbose) {
+      console.error('    Run with --verbose for full error details.\n');
+    }
+  }
+
+  if (verbose) {
+    console.error('--- Full error ---');
+    console.error(err);
+  }
+
   process.exit(1);
 });

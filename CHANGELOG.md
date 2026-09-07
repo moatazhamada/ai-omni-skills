@@ -1,5 +1,31 @@
 # Changelog
 
+## [1.5.9] - 2026-09-07
+
+### Added
+- **OpenCode native skills directory support** — configured `~/.config/opencode/skills`
+  as the default `skillsDir` for OpenCode, enabling full compilation and syncing of all
+  skills into OpenCode.
+- **Zero-modification bypass** — when dry-run reports 0 mutating actions, `executeWithConsent`
+  completes cleanly with `✅ All files and configurations are already up to date` without prompting.
+- **Non-interactive STDIN safety** — prevents hangs when `process.stdin.isTTY` is false
+  (CI, subshells, agent tools) by failing fast with instructions to use `--yes` (`-y`) or `OMNI_SKILLS_SESSION_YES=1`.
+
+### Fixed
+- **Sync idempotency (`writeJson`)** — checks whether target file already matches formatted JSON
+  before reporting modification, eliminating spurious write notifications.
+- **Trailing newlines in managed blocks (`upsertManagedBlock`)** — consumes the trailing newline
+  after the closing marker to prevent runaway blank line accumulation across sync runs.
+- **Process lifecycle** — added explicit `process.exit(0)` on command completion to prevent open
+  event loop handles from keeping the process alive after sync finishes.
+- **Doctor single installation check** — accurately detects single vs duplicate installations
+  across Homebrew and npm global channels.
+
+## [1.5.8] - 2026-07-23
+
+### Fixed
+- **Config generator TOML escaping** — fixed TOML string escaping in config generator.
+
 ## [1.5.7] - 2026-07-13
 
 ### Added

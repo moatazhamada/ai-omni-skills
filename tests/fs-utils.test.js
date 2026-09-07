@@ -1,11 +1,14 @@
 import { describe, it } from 'node:test';
 import assert from 'node:assert';
-import { absPath, moveToTrash, listTrash, restoreTrashItem, pruneTrash, emptyTrash, parentDir, ensureSymlink, upsertManagedBlock } from '../lib/fs-utils.js';
+import { absPath, moveToTrash, listTrash, restoreTrashItem, pruneTrash, emptyTrash, parentDir, ensureSymlink, upsertManagedBlock, writeJson } from '../lib/fs-utils.js';
 import { mkdirSync, writeFileSync, readFileSync, existsSync, rmSync, readdirSync } from 'node:fs';
 import { join } from 'node:path';
 import { homedir, tmpdir } from 'node:os';
 
 describe('fs-utils.js', () => {
+  const testTrashDir = join(tmpdir(), `omni-skills-trash-test-${Date.now()}`);
+  process.env.OMNI_SKILLS_TRASH_DIR = testTrashDir;
+
   describe('absPath', () => {
     it('expands tilde to home directory', () => {
       const result = absPath('~/test');
@@ -63,7 +66,7 @@ describe('fs-utils.js', () => {
       const id = Date.now();
       const tmpFile = join(tmpdir(), `skills-trash-file-${id}.txt`);
       writeFileSync(tmpFile, 'trash me');
-      const trashDir = join(homedir(), '.omni-skills-trash');
+      const trashDir = testTrashDir;
       const before = existsSync(trashDir) ? new Set(readdirSync(trashDir)) : new Set();
 
       moveToTrash(tmpFile);
@@ -80,7 +83,7 @@ describe('fs-utils.js', () => {
       const tmpDir = join(tmpdir(), `skills-trash-dir-${id}`);
       mkdirSync(tmpDir, { recursive: true });
       writeFileSync(join(tmpDir, 'child.txt'), 'child');
-      const trashDir = join(homedir(), '.omni-skills-trash');
+      const trashDir = testTrashDir;
       const before = existsSync(trashDir) ? new Set(readdirSync(trashDir)) : new Set();
 
       moveToTrash(tmpDir);
@@ -97,6 +100,7 @@ describe('fs-utils.js', () => {
   });
 
   describe('listTrash and restoreTrashItem', () => {
+
     it('lists trashed items and restores by index', () => {
       const id = Date.now();
       const tmpFile = join(tmpdir(), `skills-restore-${id}.txt`);
@@ -134,7 +138,7 @@ describe('fs-utils.js', () => {
 
       // Cleanup.
       rmSync(tmpFile, { force: true });
-      const trashed = join(homedir(), '.omni-skills-trash', item.trashedName);
+      const trashed = join(testTrashDir, item.trashedName);
       rmSync(trashed, { force: true });
     });
 
@@ -149,7 +153,7 @@ describe('fs-utils.js', () => {
       assert.ok(item);
 
       // Simulate an old entry by rewriting the manifest timestamp.
-      const manifestPath = join(homedir(), '.omni-skills-trash', '.manifest.jsonl');
+      const manifestPath = join(testTrashDir, '.manifest.jsonl');
       const manifest = readFileSync(manifestPath, 'utf8')
         .split('\n')
         .filter(Boolean)
@@ -198,6 +202,43 @@ describe('fs-utils.js', () => {
       assert.ok(content.includes('new'));
       assert.ok(!content.includes('old'));
       rmSync(tmp, { force: true });
+    });
+
+    it('reports already up-to-date and does not duplicate newlines on repeated calls', () => {
+      const tmp = join(tmpdir(), `skills-block-${Date.now()}.txt`);
+      writeFileSync(tmp, 'before\n<!-- START -->\nold\n<!-- END -->\nafter\n');
+      upsertManagedBlock(tmp, '<!-- START -->', '<!-- END -->', 'same\n');
+      const second = upsertManagedBlock(tmp, '<!-- START -->', '<!-- END -->', 'same\n');
+      assert.ok(second.includes('already up-to-date'));
+      const content = readFileSync(tmp, 'utf8');
+      assert.strictEqual(content, 'before\n<!-- START -->\nsame\n<!-- END -->\nafter\n');
+      rmSync(tmp, { force: true });
+    });
+  });
+
+  describe('writeJson', () => {
+    it('writes a JSON file and returns confirmation', () => {
+      const tmp = join(tmpdir(), `skills-write-${Date.now()}.json`);
+      const result = writeJson(tmp, { a: 1 });
+      assert.ok(result.startsWith('wrote '));
+      const content = JSON.parse(readFileSync(tmp, 'utf8'));
+      assert.deepStrictEqual(content, { a: 1 });
+      rmSync(tmp, { force: true });
+    });
+
+    it('returns up-to-date message when file content is identical', () => {
+      const tmp = join(tmpdir(), `skills-uptodate-${Date.now()}.json`);
+      writeJson(tmp, { foo: 'bar' });
+      const second = writeJson(tmp, { foo: 'bar' });
+      assert.ok(second.startsWith('json already up-to-date '));
+      rmSync(tmp, { force: true });
+    });
+
+    it('returns would write in dry-run mode when content differs', () => {
+      const tmp = join(tmpdir(), `skills-dry-${Date.now()}.json`);
+      const result = writeJson(tmp, { test: true }, { dryRun: true });
+      assert.ok(result.startsWith('would write '));
+      assert.ok(!existsSync(tmp));
     });
   });
 });

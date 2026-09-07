@@ -9,3 +9,4 @@ firebase-debug.log
 .pre-skills.bak
 coverage/
 .vitest/
+.agents/

@@ -45,5 +45,17 @@ describe('prompt.js', () => {
       assert.strictEqual(calls.length, 1);
       assert.strictEqual(calls[0].dryRun, true);
     });
+
+    it('skips prompting when dry-run actions contain zero mutating actions', async () => {
+      const actionFn = async () => [
+        'import already present in /foo',
+        'compiled skill already up-to-date /bar',
+        'json already up-to-date /baz',
+      ];
+
+      const result = await executeWithConsent(actionFn, { dryRun: false, yes: false });
+      assert.ok(Array.isArray(result));
+      assert.strictEqual(result.length, 3);
+    });
   });
 });
