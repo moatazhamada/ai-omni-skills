@@ -1,5 +1,19 @@
 # Changelog
 
+## [Unreleased]
+
+### Fixed
+- **MCP tool annotations** — `list_skills` and `read_skill` now declare all four MCP
+  hints (`readOnlyHint`, `destructiveHint`, `idempotentHint`, `openWorldHint`).
+  OpenAI's directory rejects tools with missing or non-boolean hints.
+- **Dependency advisories** — upgraded `@modelcontextprotocol/sdk` to `^1.32.2` and
+  `js-yaml` to `^4.3.2`. Removed `gray-matter` (unmaintained since 2023), which pinned
+  a vulnerable nested `js-yaml@3.14.2`; front matter is now parsed by a small in-repo
+  parser built on `js-yaml`.
+
+### Added
+- Tests covering the advertised MCP tool contract and the front-matter parser.
+
 ## [1.5.10] - 2026-09-07
 
 ### Changed

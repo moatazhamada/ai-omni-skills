@@ -10,6 +10,39 @@ import { watch } from 'node:fs';
 import { scanSkills, readSkillBody } from './lib/skills.js';
 import { logUse } from './lib/usage.js';
 
+// Tool definitions are exported so tests can assert on the advertised contract.
+// Both tools only read local skill files; neither has side effects the caller
+// must consent to, so all four MCP hints are declared explicitly as booleans.
+export const TOOL_DEFINITIONS = [
+  {
+    name: 'list_skills',
+    description: 'List all available skills (name + description + repo).',
+    inputSchema: { type: 'object', properties: {}, additionalProperties: false },
+    annotations: {
+      readOnlyHint: true,
+      destructiveHint: false,
+      idempotentHint: true,
+      openWorldHint: false,
+    },
+  },
+  {
+    name: 'read_skill',
+    description: 'Return the full SKILL.md body for a skill by name. Call this before acting on a task a skill covers.',
+    inputSchema: {
+      type: 'object',
+      properties: { name: { type: 'string' } },
+      required: ['name'],
+      additionalProperties: false,
+    },
+    annotations: {
+      readOnlyHint: true,
+      destructiveHint: false,
+      idempotentHint: true,
+      openWorldHint: false,
+    },
+  },
+];
+
 export async function startMcp(config) {
   let skills = scanSkills(config);
 
@@ -50,23 +83,7 @@ export async function startMcp(config) {
   }
 
   server.setRequestHandler(ListToolsRequestSchema, async () => ({
-    tools: [
-      {
-        name: 'list_skills',
-        description: 'List all available skills (name + description + repo).',
-        inputSchema: { type: 'object', properties: {}, additionalProperties: false },
-      },
-      {
-        name: 'read_skill',
-        description: 'Return the full SKILL.md body for a skill by name. Call this before acting on a task a skill covers.',
-        inputSchema: {
-          type: 'object',
-          properties: { name: { type: 'string' } },
-          required: ['name'],
-          additionalProperties: false,
-        },
-      },
-    ],
+    tools: TOOL_DEFINITIONS,
   }));
 
   server.setRequestHandler(CallToolRequestSchema, async (request) => {
@@ -120,4 +137,12 @@ export async function startMcp(config) {
 
   const transport = new StdioServerTransport();
   await server.connect(transport);
+
+  // Keep the stdio server alive until the client disconnects. Without this,
+  // startMcp() resolves immediately after connect() and cli.js's
+  // `.then(() => process.exit(0))` kills the MCP server before it can serve.
+  await new Promise((resolve) => {
+    process.stdin.on('end', resolve);
+    process.stdin.on('close', resolve);
+  });
 }
