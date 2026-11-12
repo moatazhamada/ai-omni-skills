@@ -50,6 +50,8 @@ jobs:
           if [ ! -s /tmp/release_notes.md ]; then
             echo "See CHANGELOG.md for version $VERSION details." > /tmp/release_notes.md
           fi
+          # Appended here so both the create and the sync path publish the same body.
+          printf '\n---\n\nPublished with [npm provenance](https://www.npmjs.com/package/ai-omni-skills).\n' >> /tmp/release_notes.md
           echo "notes<<EOF" >> $GITHUB_OUTPUT
           cat /tmp/release_notes.md >> $GITHUB_OUTPUT
           echo "EOF" >> $GITHUB_OUTPUT
@@ -62,12 +64,7 @@ jobs:
         with:
           tag_name: ${{ steps.get_version.outputs.tag }}
           name: Omni Skills ${{ steps.get_version.outputs.tag }}
-          body: |
-            ${{ steps.changelog.outputs.notes }}
-
-            ---
-
-            Published with [npm provenance](https://www.npmjs.com/package/ai-omni-skills).
+          body: ${{ steps.changelog.outputs.notes }}
           draft: false
           prerelease: false
         env:
