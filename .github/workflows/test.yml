@@ -16,6 +16,7 @@ jobs:
           node-version: 22
       - run: npm ci
       - run: npm test
+      - run: node scripts/check-release-notes.mjs
       - run: node cli.js doctor
         env:
           SKILLS_CONFIG: ${{ github.workspace }}/config.example.json

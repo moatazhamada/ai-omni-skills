@@ -33,7 +33,6 @@ jobs:
           echo "status=$STATUS" >> $GITHUB_OUTPUT
 
       - name: Extract release notes from CHANGELOG
-        if: steps.check_release.outputs.status == '404'
         id: changelog
         run: |
           VERSION="${{ steps.get_version.outputs.version }}"
@@ -67,6 +66,18 @@ jobs:
           prerelease: false
         env:
           GITHUB_TOKEN: ${{ secrets.RELEASE_TOKEN || secrets.GITHUB_TOKEN }}
+
+      # If the release already exists (e.g. created by the tag-triggered binary
+      # job), still make the changelog section authoritative instead of leaving
+      # whatever body that run produced.
+      - name: Sync release notes on an existing release
+        if: steps.check_release.outputs.status != '404'
+        env:
+          GH_TOKEN: ${{ secrets.RELEASE_TOKEN || secrets.GITHUB_TOKEN }}
+        run: |
+          gh release edit "${{ steps.get_version.outputs.tag }}" \
+            --repo "${{ github.repository }}" \
+            --notes-file /tmp/release_notes.md
 
       - name: Check if npm version already exists
         id: check_npm

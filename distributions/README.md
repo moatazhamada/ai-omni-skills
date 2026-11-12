@@ -6,7 +6,10 @@ attached to each GitHub Release.
 
 ## Release workflow
 
-1. Bump the version in `package.json` and `lib/version.js`.
+1. Bump the version in `package.json`, `lib/version.js` and
+   `RELEASE_NOTES.md`, and add the matching `## [x.y.z]` section to
+   `CHANGELOG.md`. CI (`scripts/check-release-notes.mjs`) fails if
+   `RELEASE_NOTES.md` does not mention the current `package.json` version.
 2. Push the version tag:
    ```bash
    git tag v1.3.2

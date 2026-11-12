@@ -1,8 +1,11 @@
+# yaml-language-server: $schema=https://aka.ms/winget-manifest.defaultLocale.1.28.0.schema.json
+
 PackageIdentifier: moatazhamada.omni-skills
 PackageVersion: 1.6.0
 PackageLocale: en-US
 Publisher: Moataz Mohamed
 PublisherUrl: https://github.com/moatazhamada
+PublisherSupportUrl: https://github.com/moatazhamada/ai-omni-skills/issues
 Author: Moataz Mohamed
 PackageName: Omni Skills
 PackageUrl: https://github.com/moatazhamada/ai-omni-skills
@@ -16,16 +19,16 @@ Description: |
   OpenCode, KiloCode, and more.
 Moniker: omni-skills
 Tags:
-  - ai
-  - agents
-  - cli
-  - claude
-  - codex
-  - cursor
-  - gemini
-  - kimi
-  - opencode
-  - prompts
-  - skills
+- agents
+- ai
+- claude
+- cli
+- codex
+- cursor
+- gemini
+- kimi
+- opencode
+- prompts
+- skills
 ManifestType: defaultLocale
-ManifestVersion: 1.6.0
+ManifestVersion: 1.28.0

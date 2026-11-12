@@ -1,58 +1,63 @@
-# Release v1.0.0
+# Release v1.6.0
 
-## Omni Skills — Initial Release
+## Omni Skills 1.6.0 — security hardening release
 
-**For AI enthusiasts who try every new tool and watch their skills fragment.**
+**No breaking changes.** Drop-in upgrade from any v1.5.x install.
 
-### What This Is
+### Highlights
 
-A CLI + MCP server that takes the skills you've collected across all your AI coding tools and unifies them into a single canonical private store. Then it syncs them into every tool you use — Claude, Codex, Kimi, Gemini, Cursor, Zed, Cline, and anything else that follows.
+- **0 known vulnerabilities.** `npm audit` reports a clean tree. The MCP
+  TypeScript SDK is upgraded to `^1.32.2` (three high-severity advisories) and
+  `js-yaml` to `^4.3.2`. The unmaintained `gray-matter` dependency is gone,
+  which also removes its nested vulnerable `js-yaml@3.14.2`.
+- **Explicit MCP tool annotations.** `list_skills` and `read_skill` now declare
+  `readOnlyHint`, `destructiveHint`, `idempotentHint` and `openWorldHint` as
+  booleans. Directories such as OpenAI's reject tools with missing or
+  non-boolean hints.
+- **Lighter front-matter parser.** `lib/frontmatter.js` parses SKILL.md and
+  WORKFLOW.md front matter directly with `js-yaml`, keeping the fallback for
+  malformed YAML (for example an unquoted colon in a description).
+- **Fixed MCP server lifetime.** The stdio server stays alive until the client
+  disconnects instead of being torn down right after `connect()`.
 
-### What's Included
+### Install / upgrade
 
-- **11 CLI commands** — `sync`, `doctor`, `setup`, `discover`, `classify`, `check`, `report`, `index`, `init`, `mcp`, `help`
-- **MCP server** — exposes `list_skills` and `read_skill` to any AI tool that supports MCP
-- **Auto-scan setup** — detects installed AI tools, finds skill directories, suggests cleanup, generates config
-- **26 AI tool configs** — Claude, Codex, Kimi, Gemini, Cursor, Kilocode, OpenCode, Cline, Roo, Windsurf, Zed, Aider, Continue, Tabby, PearAI, Void, Supermaven, Augment, Codeium, Copilot, Junie, AI Assistant, Claude Desktop, Devin, Factory Droid, **Z.AI (GLM 5.2)**
-- **24-check verification suite** — run `node verify.js` to verify your setup
-- **14 unit tests** — Node's built-in test runner, no extra dependencies
-- **Weekly health check** — `omni-skills doctor` via cron to catch drift
-
-### Z.AI (GLM 5.2) Support
-
-Z.AI works through existing tools. Use Claude Code, Cline, or Zed with a GLM Coding Plan key. For VS Code Copilot, install the `glm-copilot` extension.
-
-### Install
-
-```bash
-git clone https://github.com/moatazhamada/ai-omni-skills.git
-cd ai-omni-skills
-npm link
-omni-skills setup
-omni-skills sync all
-```
-
-Or via npm (coming soon):
+npm:
 
 ```bash
-npm install -g omni-skills
-omni-skills setup
-omni-skills sync all
+npm install -g ai-omni-skills@1.6.0
 ```
 
-### What's NOT Included (By Design)
+Homebrew (macOS / Linux):
 
-- No skills. Your skills live in your private repo.
-- No instruction files. Those are your intellectual property.
+```bash
+brew tap moatazhamada/tap
+brew install omni-skills
+# already installed:
+brew upgrade omni-skills
+```
 
-### Star & Contribute
+Windows (Winget):
 
-If this helps you, give it a star ⭐
+```powershell
+winget upgrade moatazhamada.omni-skills
+```
 
-- [Open an issue](https://github.com/moatazhamada/ai-omni-skills/issues) — bug reports, feature requests, questions
-- [Open a discussion](https://github.com/moatazhamada/ai-omni-skills/discussions) — ideas, show-and-tell, Q&A
-- [Open a PR](https://github.com/moatazhamada/ai-omni-skills/pulls) — contributions welcome
+Standalone binaries:
+https://github.com/moatazhamada/ai-omni-skills/releases/tag/v1.6.0
 
----
+### Compatibility
 
-**Full Changelog**: [CHANGELOG.md](CHANGELOG.md)
+- Requires Node.js >= 18.
+- No CLI commands, flags, config keys or file formats changed.
+- Published to npm with provenance attestation.
+
+### Verification
+
+- `npm audit`: 0 vulnerabilities.
+- Full test suite passing in CI, including new coverage for the advertised MCP
+  tool contract and the front-matter parser.
+- Release binaries are built from the tagged commit by GitHub Actions; their
+  SHA256 digests are the ones published in the Homebrew and Winget manifests.
+
+Full changelog: [CHANGELOG.md](CHANGELOG.md)

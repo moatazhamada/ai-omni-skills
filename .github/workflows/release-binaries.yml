@@ -66,11 +66,15 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           TAG="${GITHUB_REF_NAME}"
-          for i in $(seq 1 30); do
+          for i in $(seq 1 18); do
             if gh release view "$TAG" --repo "${{ github.repository }}" >/dev/null 2>&1; then
               break
             fi
             echo "Waiting for release $TAG to exist..."
             sleep 10
           done
+          if ! gh release view "$TAG" --repo "${{ github.repository }}" >/dev/null 2>&1; then
+            echo "Release $TAG was not created by auto-release; creating it with generated notes."
+            gh release create "$TAG" --repo "${{ github.repository }}" --title "$TAG" --generate-notes
+          fi
           gh release upload "$TAG" "${{ matrix.binaryName }}" --repo "${{ github.repository }}" --clobber
