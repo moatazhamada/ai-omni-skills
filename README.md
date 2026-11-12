@@ -10,7 +10,7 @@
 
 > **I try every AI tool. My skills scattered everywhere. This unifies them.**
 
-> **🎉 v1.5.0 is out — automatic pre-sync backups, session-aware consent, a smaller core CLI (`sync`, `setup`, `doctor`, `restore`, `update`, `help`), and secondary commands moved under `manage`. [Read the changelog →](CHANGELOG.md)**
+> **🎉 v1.6.0 is out — patched dependency advisories (0 known vulnerabilities), explicit MCP tool annotations, a lighter front-matter parser, and a fixed MCP server lifetime. [Read the changelog →](CHANGELOG.md)**
 
 A CLI + MCP server that takes the skills you've collected across all your AI
 coding tools and unifies them into a single canonical store. Then it syncs them
