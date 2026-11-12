@@ -28,9 +28,15 @@ jobs:
         run: |
           TAG="${{ steps.get_version.outputs.tag }}"
           STATUS=$(curl -s -o /dev/null -w "%{http_code}" \
-            -H "Authorization: token ${{ secrets.RELEASE_TOKEN || secrets.GITHUB_TOKEN }}" \
+            -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
             "https://api.github.com/repos/${{ github.repository }}/releases/tags/$TAG")
           echo "status=$STATUS" >> $GITHUB_OUTPUT
+          # 401/403 means the token cannot write, so a later create/edit would fail
+          # confusingly. Fail here instead of treating an auth error as "exists".
+          if [ "$STATUS" != "200" ] && [ "$STATUS" != "404" ]; then
+            echo "Unexpected HTTP $STATUS checking for release $TAG"
+            exit 1
+          fi
 
       - name: Extract release notes from CHANGELOG
         id: changelog
@@ -65,15 +71,15 @@ jobs:
           draft: false
           prerelease: false
         env:
-          GITHUB_TOKEN: ${{ secrets.RELEASE_TOKEN || secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       # If the release already exists (e.g. created by the tag-triggered binary
       # job), still make the changelog section authoritative instead of leaving
       # whatever body that run produced.
       - name: Sync release notes on an existing release
-        if: steps.check_release.outputs.status != '404'
+        if: steps.check_release.outputs.status == '200'
         env:
-          GH_TOKEN: ${{ secrets.RELEASE_TOKEN || secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           gh release edit "${{ steps.get_version.outputs.tag }}" \
             --repo "${{ github.repository }}" \
