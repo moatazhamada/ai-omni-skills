@@ -56,9 +56,21 @@ jobs:
       - name: Compile Native Binary
         run: bun build ./cli.js --compile --target=${{ matrix.target }} --outfile=${{ matrix.binaryName }}
 
+      # Upload with gh instead of action-gh-release: the auto-release workflow
+      # creates the release (with the changelog body), and an action-gh-release
+      # asset upload later in the run would overwrite those notes with an empty
+      # body. gh only touches the asset.
       - name: Upload to GitHub Release
-        uses: softprops/action-gh-release@v2
-        with:
-          files: ${{ matrix.binaryName }}
+        shell: bash
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          TAG="${GITHUB_REF_NAME}"
+          for i in $(seq 1 30); do
+            if gh release view "$TAG" --repo "${{ github.repository }}" >/dev/null 2>&1; then
+              break
+            fi
+            echo "Waiting for release $TAG to exist..."
+            sleep 10
+          done
+          gh release upload "$TAG" "${{ matrix.binaryName }}" --repo "${{ github.repository }}" --clobber
