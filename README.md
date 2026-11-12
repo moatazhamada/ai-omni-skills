@@ -4,7 +4,7 @@
 [![npm downloads](https://img.shields.io/npm/dm/ai-omni-skills.svg)](https://www.npmjs.com/package/ai-omni-skills)
 [![license](https://img.shields.io/npm/l/ai-omni-skills.svg)](LICENSE)
 [![GitHub stars](https://img.shields.io/github/stars/moatazhamada/ai-omni-skills.svg?style=social)](https://github.com/moatazhamada/ai-omni-skills)
-[![M8ven Verified](https://m8ven.ai/badge/mcp/moatazhamada-ai-omni-skills-1i76ju?variant=verified&v=e0dd64d9621e429ade18cca156b452ca)](https://m8ven.ai/mcp/moatazhamada-ai-omni-skills-1i76ju?s=readme)
+[![M8ven Verified](https://m8ven.ai/badge/mcp/moatazhamada-ai-omni-skills-1i76ju?variant=verified)](https://m8ven.ai/mcp/moatazhamada-ai-omni-skills-1i76ju?s=readme)
 
 ![Omni Skills Banner](banner.png)
 
